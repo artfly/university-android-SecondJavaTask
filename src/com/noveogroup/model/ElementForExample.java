@@ -5,9 +5,10 @@ package com.noveogroup.model;
  * You should use your own classes.
  */
 public class ElementForExample implements TreeElement {
+    int id = 0;
 
     @Override
     public int getId() {
-        return 0;
+        return id;
     }
 }

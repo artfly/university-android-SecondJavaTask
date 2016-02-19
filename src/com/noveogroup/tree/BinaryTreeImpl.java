@@ -1,98 +1,28 @@
 package com.noveogroup.tree;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * Sample implementation.
  */
-public class BinaryTreeImpl<K extends Comparable<K>, V> implements BinaryTree<K, V> {
+public class BinaryTreeImpl<K extends Comparable<K>, V extends Serializable> implements BinaryTree<K, V>, Serializable {
+    private static final long serialVersionUID = 1;
 
-    private class Node<K extends Comparable<K>, V>  implements Comparable<Node<K, V>> {
-        private V value;
-        private K key;
-        private Node<K, V> left;
-        private Node<K, V> right;
-        private Node<K, V> parent;
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
 
-        private Node () {}
-
-        public Node (K key, V value, Node<K, V> parent) {
-            this.key = key;
-            this.value = value;
-            this.parent = parent;
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public int compareTo(Node<K, V> o) {
-            return getKey().compareTo(o.getKey());
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public Node<K, V> getParent () {
-            return parent;
-        }
-
-        public void changeChild(Node<K, V> oldChild, Node<K, V> newChild) {
-            if (left == oldChild)
-                left = newChild;
-            else
-                right = newChild;
-        }
     }
 
-    private class TreeIterator<K extends Comparable<K>, V> implements Iterator<V> {
-        private Node<K, V> next;
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
 
-        TreeIterator(Node<K, V> root) {
-            this.next = root;
-            if (next == null)
-                return;
-            while(next.left != null) {
-                next = next.left;
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-
-        @Override
-        public V next() {
-            if(!hasNext()) {
-                //TODO
-                throw new NoSuchElementException();
-            }
-
-            Node<K, V> ret = next;
-            if(next.right != null) {
-                next = next.right;
-                while(next.left != null)
-                    next = next.left;
-                return ret.getValue();
-            }
-
-            while (true) {
-                if (next.parent == null) {
-                    next = null;
-                    return ret.getValue();
-                }
-                if (next.parent.left == next) {
-                    next = next.parent;
-                    return ret.getValue();
-                }
-                next = next.parent;
-            }
-        }
     }
+
 
     private Node<K, V> root;
     private Iterator<V> iteraror;
@@ -109,21 +39,21 @@ public class BinaryTreeImpl<K extends Comparable<K>, V> implements BinaryTree<K,
 
     private void addElement(Node<K, V> root, Node<K, V> node) {
         if (root.compareTo(node) < 0) {
-            if (root.right != null) {
-                addElement(root.right, node);
+            if (root.getRight() != null) {
+                addElement(root.getRight(), node);
             }
-            root.right = node;
-            node.parent = root;
+            root.setRight(node);
+            node.setParent(root);
         }
         else if (root.compareTo(node) > 0) {
-            if (root.left != null) {
-                addElement(root.left, node);
+            if (root.getLeft() != null) {
+                addElement(root.getLeft(), node);
             }
-            root.left = node;
-            node.parent = root;
+            root.setLeft(node);
+            node.setParent(root);
         }
         else {
-            root.value = node.value;
+            root.setValue(node.getValue());
         }
     }
 
@@ -138,42 +68,42 @@ public class BinaryTreeImpl<K extends Comparable<K>, V> implements BinaryTree<K,
         if (root == null)
             return;
         if (root.getKey().compareTo(key) > 0) {
-            removeElement(key, root.left);
+            removeElement(key, root.getLeft());
         }
         else if (root.getKey().compareTo(key) < 0) {
-            removeElement(key, root.right);
+            removeElement(key, root.getRight());
         }
         else {
-            if (root.left == null && root.right == null) {
+            if (root.getLeft() == null && root.getRight() == null) {
                 this.root = null;
                 return;
             }
-            if (root.right == null) {
-                root.parent.changeChild(root, root.left);
+            if (root.getRight() == null) {
+                root.getParent().changeChild(root, root.getLeft());
                 return;
             }
             Node<K, V> minNode = findSubtreeMin(root);
-            minNode.parent.changeChild(minNode, null);
-            root.parent.changeChild(root, minNode);
-            minNode.left = root.left;
-            if (minNode != root.right)
-                minNode.right = root.right;
+            minNode.getParent().changeChild(minNode, null);
+            root.getParent().changeChild(root, minNode);
+            minNode.setLeft(root.getLeft());
+            if (minNode != root.getRight())
+                minNode.setRight(root.getRight());
         }
     }
 
     private Node<K, V> findSubtreeMin(Node<K, V> root) {
         Node<K, V> minNode = null;
-        root = root.right;
+        root = root.getRight();
         while(root != null) {
             minNode = root;
-            root = root.left;
+            root = root.getLeft();
         }
         return minNode;
     }
 
     @Override
     public Iterator<V> getIterator() {
-        iteraror = new TreeIterator<K, V> (root);
+        iteraror = new TreeIterator<>(root);
         return iteraror;
     }
 
