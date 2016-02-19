@@ -1,13 +1,14 @@
 package com.noveogroup.tree;
 
+import com.noveogroup.exception.ancestor.TreeIteratorException;
+
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * Created by arty on 19.02.16.
  */
-public class TreeIterator<K extends Comparable<K>, V extends Serializable> implements Iterator<V>, Serializable {
+public class TreeIterator<K extends Comparable<K>, V extends Serializable> implements Iterator<V> {
     private Node<K, V> next;
 
     TreeIterator(Node<K, V> root) {
@@ -27,8 +28,7 @@ public class TreeIterator<K extends Comparable<K>, V extends Serializable> imple
     @Override
     public V next() {
         if(!hasNext()) {
-            //TODO
-            throw new NoSuchElementException();
+            throw new TreeIteratorException("Iterator doesn't have enough elements");
         }
 
         Node<K, V> ret = next;
