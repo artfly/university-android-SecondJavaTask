@@ -31,7 +31,7 @@ public class BinaryTreeImpl<K extends Comparable<K>, V extends Serializable> imp
     }
 
     @Override
-    public void addElement(K key, V value) throws ElementAlreadyExistsException {
+    public synchronized void addElement(K key, V value) throws ElementAlreadyExistsException {
         Node node = new Node<> (key, value, null);
         if (root == null) {
             root = node;
@@ -63,7 +63,7 @@ public class BinaryTreeImpl<K extends Comparable<K>, V extends Serializable> imp
     }
 
     @Override
-    public void removeElement(K key) throws NoSuchNodeException {
+    public synchronized void removeElement(K key) throws NoSuchNodeException {
         removeElement(key, root);
     }
 
@@ -95,8 +95,6 @@ public class BinaryTreeImpl<K extends Comparable<K>, V extends Serializable> imp
             }
 
             Node<K, V> minNode = findSubtreeMin(root);
-            System.out.println("Min parent : " + minNode.getParent().getValue().toString());
-            System.out.println("Min  : " + minNode.getValue().toString());
             if (root.getParent() != null)
                 root.getParent().changeChild(root, minNode);
             else
